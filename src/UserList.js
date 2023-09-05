@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import app from './firebase';
+import ConfirmationModal from './ConfirmationModal';
 
 const UserList = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +24,8 @@ const UserList = () => {
   const isListView = useMediaQuery('(max-width:600px)');
   const [clickedUserCount, setClickedUserCount] = useState(0);
   const [notClickedUserCount, setNotClickedUserCount] = useState(0);
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [userNameToConfirm, setUserNameToConfirm] = useState('');
 
   // Fetch users from Firebase Realtime Database
   useEffect(() => {
@@ -44,18 +47,8 @@ const UserList = () => {
   };
 
   const handleUserClick = (name) => {
-    const updatedUsers = users.map((user) => {
-      if (user.name === name) {
-        return { ...user, clicked: !user.clicked };
-      }
-      return user;
-    });
-    updateUser(updatedUsers);
-    setSelectedUsers(updatedUsers.filter((user) => user.clicked));
-    setUsers(updatedUsers);
-    const clickedCount = updatedUsers.filter((user) => user.clicked).length;
-    setClickedUserCount(clickedCount);
-    setNotClickedUserCount(updatedUsers.length - clickedCount);
+    setUserNameToConfirm(name);
+    setConfirmationModalOpen(true);
   };
 
   const showClicked = () => {
@@ -78,6 +71,11 @@ const UserList = () => {
       });
   };
 
+  const closeConfirmationModal = () => {
+    setUserNameToConfirm('');
+    setConfirmationModalOpen(false);
+  };
+
   return (
     <>
       <div
@@ -90,15 +88,15 @@ const UserList = () => {
         }}
       >
         <Container style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    minHeight: '100vh',
-    position: 'sticky',
-    top: 0,
-    marginTop: '20px',
-  }}>
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          minHeight: '100vh',
+          position: 'sticky',
+          top: 0,
+          marginTop: '20px',
+        }}>
           <Paper elevation={3} style={{ padding: '16px', width: '80%' }}>
             <Typography variant="h6" align="center">
               Dalyvių sąrašas
@@ -112,12 +110,12 @@ const UserList = () => {
               style={{ marginBottom: '10px' }}
             />
             <Typography
-        variant="subtitle1"
-        align="center"
-        style={{ marginTop: '0px' }}
-      >
-        Atėjo tiek : {clickedUserCount} Dar neatėjo tiek : {notClickedUserCount}
-      </Typography>
+              variant="subtitle1"
+              align="center"
+              style={{ marginTop: '0px' }}
+            >
+              Atėjo tiek : {clickedUserCount} Dar neatėjo tiek : {notClickedUserCount}
+            </Typography>
             <Box marginBottom="16px">
               <Box
                 display="flex"
@@ -194,6 +192,28 @@ const UserList = () => {
           </Paper>
         </Container>
       </div>
+      <ConfirmationModal
+        open={confirmationModalOpen}
+        onClose={closeConfirmationModal}
+        onConfirm={() => {
+          // Perform the action here, e.g., update the user's status
+          const updatedUsers = users.map((user) => {
+            if (user.name === userNameToConfirm) {
+              return { ...user, clicked: !user.clicked };
+            }
+            return user;
+          });
+          updateUser(updatedUsers);
+          setSelectedUsers(updatedUsers.filter((user) => user.clicked));
+          setUsers(updatedUsers);
+          const clickedCount = updatedUsers.filter((user) => user.clicked).length;
+          setClickedUserCount(clickedCount);
+          setNotClickedUserCount(updatedUsers.length - clickedCount);
+
+          closeConfirmationModal(); // Close the modal after confirming
+        }}
+        userName={userNameToConfirm}
+      />
     </>
   );
 };
