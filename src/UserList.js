@@ -21,6 +21,8 @@ const UserList = () => {
   const [showClickedUsers, setShowClickedUsers] = useState(false);
   const [users, setUsers] = useState([]);
   const isListView = useMediaQuery('(max-width:600px)');
+  const [clickedUserCount, setClickedUserCount] = useState(0);
+  const [notClickedUserCount, setNotClickedUserCount] = useState(0);
 
   // Fetch users from Firebase Realtime Database
   useEffect(() => {
@@ -30,6 +32,9 @@ const UserList = () => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
         setUsers(userData);
+        const clickedCount = userData.filter((user) => user.clicked).length;
+        setClickedUserCount(clickedCount);
+        setNotClickedUserCount(userData.length - clickedCount);
       }
     });
   }, []);
@@ -48,6 +53,9 @@ const UserList = () => {
     updateUser(updatedUsers);
     setSelectedUsers(updatedUsers.filter((user) => user.clicked));
     setUsers(updatedUsers);
+    const clickedCount = updatedUsers.filter((user) => user.clicked).length;
+    setClickedUserCount(clickedCount);
+    setNotClickedUserCount(updatedUsers.length - clickedCount);
   };
 
   const showClicked = () => {
@@ -56,25 +64,6 @@ const UserList = () => {
 
   const showNotClicked = () => {
     setShowClickedUsers(false);
-  };
-
-  const initializeUsersInDatabase = () => {
-    const db = getDatabase(app);
-    const usersRef = ref(db, '/users'); // Replace 'users' with your database reference path
-    const lithuanianPeople = [
-      { name: 'Giedre Siauciunaite', clicked: false },
-      { name: 'Vytautas Jankauskas', clicked: false },
-      { name: 'Milda Petrauskaite', clicked: false },
-      { name: 'Mantas Kazlauskas', clicked: false },
-      { name: 'Lina Butkiene', clicked: false },
-    ];
-    set(usersRef, lithuanianPeople)
-      .then(() => {
-        console.log('Users have been initialized in the database.2');
-      })
-      .catch((error) => {
-        console.error('Error initializing users in the database:', error);
-      });
   };
 
   const updateUser = (updatedUsers) => {
@@ -90,106 +79,122 @@ const UserList = () => {
   };
 
   return (
-    <Container
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start', // Change this to 'flex-start' to stick to the top
-        minHeight: '100vh',
-        position: 'sticky', // Add this
-        top: 0, // Add this
-        marginTop: '20px'
-      }}
-    >
-      <Paper elevation={3} style={{ padding: '16px', width: '80%' }}>
-        <Typography variant="h6" align="center">
-          User List
-        </Typography>
-        <TextField
-          fullWidth
-          label="Search"
-          variant="outlined"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          style={{ marginBottom: '16px' }}
-        />
-        <Box marginBottom="16px">
-          <Box
-            display="flex"
-            justifyContent="center"
-            marginBottom="8px"
-            sx={{ gap: '8px' }}
-          >
-            <Button
-              variant={showClickedUsers ? 'contained' : 'outlined'}
-              color="primary"
-              onClick={showClicked}
-            >
-              Show Clicked Users
-            </Button>
-            <Button
-              variant={!showClickedUsers ? 'contained' : 'outlined'}
-              color="primary"
-              onClick={showNotClicked}
-            >
-              Show Not Clicked Users
-            </Button>
-          </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={initializeUsersInDatabase}
-          >
-            Initialize Database
-          </Button>
-        </Box>
-        {isListView ? (
-          <List>
-            {users
-              .filter((user) => (showClickedUsers ? user.clicked : !user.clicked))
-              .filter((user) =>
-                user.name.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((user) => (
-                <ListItem
-                  key={user.name}
-                  button
-                  onClick={() => handleUserClick(user.name)}
-                  style={{
-                    backgroundColor: user.clicked ? 'lightblue' : 'white',
-                  }}
+    <>
+      <div
+        style={{
+          marginTop: '20px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
+        <Container style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    minHeight: '100vh',
+    position: 'sticky',
+    top: 0,
+    marginTop: '20px',
+  }}>
+          <Paper elevation={3} style={{ padding: '16px', width: '80%' }}>
+            <Typography variant="h6" align="center">
+              Dalyvių sąrašas
+            </Typography>
+            <TextField
+              fullWidth
+              label="Search"
+              variant="outlined"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              style={{ marginBottom: '10px' }}
+            />
+            <Typography
+        variant="subtitle1"
+        align="center"
+        style={{ marginTop: '0px' }}
+      >
+        Atėjo tiek : {clickedUserCount} Dar neatėjo tiek : {notClickedUserCount}
+      </Typography>
+            <Box marginBottom="16px">
+              <Box
+                display="flex"
+                justifyContent="center"
+                marginBottom="8px"
+                sx={{ gap: '8px' }}
+              >
+                <Button
+                  variant={showClickedUsers ? 'contained' : 'outlined'}
+                  color="primary"
+                  onClick={showClicked}
                 >
-                  <ListItemText primary={user.name} />
-                </ListItem>
-              ))}
-          </List>
-        ) : (
-          <Grid container spacing={2}>
-            {users
-              .filter((user) => (showClickedUsers ? user.clicked : !user.clicked))
-              .filter((user) =>
-                user.name.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((user) => (
-                <Grid item xs={4} key={user.name}>
-                  <Paper
-                    elevation={3}
-                    onClick={() => handleUserClick(user.name)}
-                    style={{
-                      padding: '8px',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      backgroundColor: user.clicked ? 'lightblue' : 'white',
-                    }}
-                  >
-                    {user.name}
-                  </Paper>
-                </Grid>
-              ))}
-          </Grid>
-        )}
-      </Paper>
-    </Container>
+                  Atėja žmonės
+                </Button>
+                <Button
+                  variant={!showClickedUsers ? 'contained' : 'outlined'}
+                  color="primary"
+                  onClick={showNotClicked}
+                >
+                  Ne atėja žmonės
+                </Button>
+              </Box>
+            </Box>
+            {isListView ? (
+              <List>
+                {users
+                  .filter((user) =>
+                    showClickedUsers ? user.clicked : !user.clicked
+                  )
+                  .filter((user) =>
+                    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((user) => (
+                    <ListItem
+                      key={user.name}
+                      button
+                      onClick={() => handleUserClick(user.name)}
+                      style={{
+                        textAlign: 'center',
+                        backgroundColor: user.clicked ? 'lightblue' : 'white',
+                      }}
+                    >
+                      <ListItemText primary={user.name} />
+                    </ListItem>
+                  ))}
+              </List>
+            ) : (
+              <Grid container spacing={2}>
+                {users
+                  .filter((user) =>
+                    showClickedUsers ? user.clicked : !user.clicked
+                  )
+                  .filter((user) =>
+                    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((user) => (
+                    <Grid item xs={4} key={user.name}>
+                      <Paper
+                        elevation={3}
+                        onClick={() => handleUserClick(user.name)}
+                        style={{
+                          padding: '8px',
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          backgroundColor: user.clicked ? 'lightblue' : 'white',
+                        }}
+                      >
+                        {user.name}
+                      </Paper>
+                    </Grid>
+                  ))}
+              </Grid>
+            )}
+          </Paper>
+        </Container>
+      </div>
+    </>
   );
 };
 
