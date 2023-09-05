@@ -27,8 +27,8 @@ const UserList = () => {
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [userNameToConfirm, setUserNameToConfirm] = useState('');
   const confirmationMessage = showClickedUsers
-  ? `Ar tikrai nori gražint į neatėjusių sąrašą ?`
-  : `Ar tikrai šis žmogus atėjo ?`;
+    ? `Ar tikrai nori gražint į neatėjusių sąrašą ?`
+    : `Ar tikrai šis žmogus atėjo ?`;
 
   // Fetch users from Firebase Realtime Database
   useEffect(() => {
@@ -38,7 +38,7 @@ const UserList = () => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
         const sortedUsers = [...userData].sort((a, b) =>
-      a.name.localeCompare(b.name)
+          a.name.localeCompare(b.name)
         );
         setUsers(sortedUsers);
         const clickedCount = sortedUsers.filter((user) => user.clicked).length;
