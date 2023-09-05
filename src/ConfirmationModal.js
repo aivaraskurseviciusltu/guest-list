@@ -7,7 +7,6 @@ import {
     Button,
     Box,
     Paper,
-    IconButton,
 } from '@mui/material';
 
 const ConfirmationModal = ({ open, onClose, onConfirm, userName, message }) => {

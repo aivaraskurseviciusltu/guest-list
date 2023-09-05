@@ -37,10 +37,13 @@ const UserList = () => {
     onValue(usersRef, (snapshot) => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
-        setUsers(userData);
-        const clickedCount = userData.filter((user) => user.clicked).length;
+        const sortedUsers = [...userData].sort((a, b) =>
+      a.name.localeCompare(b.name)
+        );
+        setUsers(sortedUsers);
+        const clickedCount = sortedUsers.filter((user) => user.clicked).length;
         setClickedUserCount(clickedCount);
-        setNotClickedUserCount(userData.length - clickedCount);
+        setNotClickedUserCount(sortedUsers.length - clickedCount);
       }
     });
   }, []);
