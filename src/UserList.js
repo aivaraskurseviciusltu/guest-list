@@ -70,7 +70,7 @@ const UserList = () => {
     ];
     set(usersRef, lithuanianPeople)
       .then(() => {
-        console.log('Users have been initialized in the database.');
+        console.log('Users have been initialized in the database.2');
       })
       .catch((error) => {
         console.error('Error initializing users in the database:', error);
