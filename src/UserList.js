@@ -26,6 +26,9 @@ const UserList = () => {
   const [notClickedUserCount, setNotClickedUserCount] = useState(0);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [userNameToConfirm, setUserNameToConfirm] = useState('');
+  const confirmationMessage = showClickedUsers
+  ? `Ar tikrai nori gražint į neatėjusių sąrašą ?`
+  : `Ar tikrai šis žmogus atėjo ?`;
 
   // Fetch users from Firebase Realtime Database
   useEffect(() => {
@@ -128,14 +131,14 @@ const UserList = () => {
                   color="primary"
                   onClick={showClicked}
                 >
-                  Atėja žmonės
+                  Atėję žmonės
                 </Button>
                 <Button
                   variant={!showClickedUsers ? 'contained' : 'outlined'}
                   color="primary"
                   onClick={showNotClicked}
                 >
-                  Ne atėja žmonės
+                  Neatėję žmonės
                 </Button>
               </Box>
             </Box>
@@ -213,6 +216,7 @@ const UserList = () => {
           closeConfirmationModal(); // Close the modal after confirming
         }}
         userName={userNameToConfirm}
+        message={confirmationMessage}
       />
     </>
   );

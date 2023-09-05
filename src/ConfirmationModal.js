@@ -10,7 +10,7 @@ import {
     IconButton,
 } from '@mui/material';
 
-const ConfirmationModal = ({ open, onClose, onConfirm, userName }) => {
+const ConfirmationModal = ({ open, onClose, onConfirm, userName, message }) => {
     return (
         <Modal
             open={open}
@@ -44,10 +44,10 @@ const ConfirmationModal = ({ open, onClose, onConfirm, userName }) => {
                         }}
                     >
                         <Typography variant="h6" gutterBottom>
-                            Ar tikrai atėjo
+                            {message}
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                            <b>{userName}</b> ?
+                            <b>{userName}</b>
                         </Typography>
                         <Box marginTop={2} display="flex" justifyContent="center" sx={{ gap: 2 }}>
                             <Button variant="outlined" onClick={onClose}>
