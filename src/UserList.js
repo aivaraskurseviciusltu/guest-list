@@ -36,7 +36,7 @@ const UserList = () => {
     const usersRef = ref(db, '/users'); // Replace 'users' with your database reference path
     onValue(usersRef, (snapshot) => {
       if (snapshot.exists()) {
-        const userData = snapshot.val();
+        const userData = snapshot.val().filter(u => u !== undefined)
         const sortedUsers = [...userData].sort((a, b) =>
           a.name.localeCompare(b.name)
         );
